@@ -6,30 +6,23 @@
 
 using namespace std;
 vector<int> a(100'000); // 100,000 크기의 난수 데이터를 담을 가변길이 벡터 a 선언
-vector<int> ins_1000(100); // 1,000개 데이터에 대한 100가지 인스턴스를 담을 가변길이 벡터 선언
-vector<int> ins_5000(100); // 5,000개 데이터에 대한 100가지 인스턴스를 담을 가변길이 벡터 선언
-vector<int> ins_10000(100); // 10,000개 데이터에 대한 100가지 인스턴스를 담을 가변길이 벡터 선언
-vector<int> ins_50000(100); // 50,000개 데이터에 대한 100가지 인스턴스를 담을 가변길이 벡터 선언
-vector<int> ins_100000(100); // 100,000개 데이터에 대한 100가지 인스턴스를 담을 가변길이 벡터 선언
+vector<int> b(100); // 100 크기의 난수 데이터를 담을 가변길이 벡터 b 선언
 
-void random_generate() {
-    random_device rd;    // 시드값을 얻기 위한 random_device 생성.
-    mt19937 gen(rd());  // random_device 를 통해 난수 생성 엔진을 초기화 한다.
-    uniform_int_distribution<int> dis(0, 10'000'000);    // 0 부터 10,000,000 까지 균등하게 나타나는 난수열을 생성하기 위해 균등 분포 정의.
-	uniform_int_distribution<int> dis_1(0, 999);    // 0 부터 999 까지 균등하게 나타나는 난수열을 생성하기 위해 균등 분포 정의.
-	uniform_int_distribution<int> dis_2(0, 4'999);    // 0 부터 4,999 까지 균등하게 나타나는 난수열을 생성하기 위해 균등 분포 정의.
-	uniform_int_distribution<int> dis_3(0, 9'999);    // 0 부터 9,999 까지 균등하게 나타나는 난수열을 생성하기 위해 균등 분포 정의.
-	uniform_int_distribution<int> dis_4(0, 49'999);    // 0 부터 49,999 까지 균등하게 나타나는 난수열을 생성하기 위해 균등 분포 정의.
-	uniform_int_distribution<int> dis_5(0, 99'999);    // 0 부터 99,999 까지 균등하게 나타나는 난수열을 생성하기 위해 균등 분포 정의.
+void random_generate_alldata(int range) {
+	random_device rd;    // 시드값을 얻기 위한 random_device 생성.
+	mt19937 gen(rd());  // random_device 를 통해 난수 생성 엔진을 초기화 한다.
+	uniform_int_distribution<int> dis(0, 10'000'000);    // 0 부터 10,000,000 까지 균등하게 나타나는 난수열을 생성하기 위해 균등 분포 정의.
 
-
-    for (int i = 0; i < 100'000; i++) a[i] = dis(gen);      // 0 부터 10,000,000 사이에서 생성된 난수 100,000개 삽입
-    for (int i = 0; i < 100; i++) ins_1000[i] = a[dis_1(gen)];  // 1,000개 데이터에 대한 100가지 임의의 인스턴스 삽입
-    for (int i = 0; i < 100; i++) ins_5000[i] = a[dis_2(gen)];  // 5,000개 데이터에 대한 100가지 인스턴스 삽입
-    for (int i = 0; i < 100; i++) ins_10000[i] = a[dis_3(gen)];    // 10,000개 데이터에 대한 100가지 인스턴스 삽입
-    for (int i = 0; i < 100; i++) ins_50000[i] = a[dis_4(gen)];    // 50,000개 데이터에 대한 100가지 인스턴스 삽입
-    for (int i = 0; i < 100; i++) ins_100000[i] = a[dis_5(gen)];  // 100,000개 데이터에 대한 100가지 인스턴스 삽입
+	for (int i = 0; i < range; i++) a[i] = dis(gen);      // 0 부터 10,000,000 사이에서 생성된 난수 range개 삽입
 }
+void random_generate_index(int range) {
+	random_device rd;    // 시드값을 얻기 위한 random_device 생성.
+	mt19937 gen(rd());  // random_device 를 통해 난수 생성 엔진을 초기화 한다.
+	uniform_int_distribution<int> dis(0, range-1);    // 0 부터 range-1 까지 균등하게 나타나는 난수열을 생성하기 위해 균등 분포 정의.
+
+	for (int i = 0; i < 100; i++) b[i] = dis(gen);      // 0 부터 range-1 사이에서 생성된 난수 100개 삽입
+}
+
 
 template<typename T>
 struct Node { Node* left; Node* right; T value; };
@@ -42,6 +35,8 @@ public:
 
 	void AddNode(T _value);
 	int SearchValue(T _value);
+	void rem();
+	void rem(Node<T>* ptr);
 private:
 	Node<T>* root;
 	Node<T>* tail;
@@ -84,196 +79,197 @@ void BinarySearchTree<T>::AddNode(T _value) {
 		else tmpRoot->right = node;
 	}
 }
-// 노드 구조체를 정의합니다.
-struct nodeAVL
-{
-	int data;
-	struct nodeAVL* left;
-	struct nodeAVL* right;
-} *root;
 
-// 클래스를 정의합니다.
-class classAVL
+template <typename T>
+void BinarySearchTree<T>::rem() {
+	Node<T>* ptr = root;
+	if (ptr) {
+		rem(ptr->left);
+		rem(ptr->right);
+		delete ptr;
+	}
+}
+
+
+template <typename T>
+void BinarySearchTree<T>::rem(Node<T>* ptr) {
+	if (ptr) {
+		rem(ptr->left);
+		rem(ptr->right);
+		delete ptr;
+	}
+}
+
+// An AVL tree node
+class NodeAVL
 {
 public:
-	// 노드의 높이를 반환합니다.
-	int height(nodeAVL*);
-	// 균형인수(높이의 차이)를 반환합니다.
-	int diff(nodeAVL*);
-	// RR 회전 함수입니다.
-	nodeAVL* rr(nodeAVL*);
-	// LL 회전 함수입니다.
-	nodeAVL* ll(nodeAVL*);
-	// LR 회전 함수입니다.
-	nodeAVL* lr(nodeAVL*);
-	// RL 회전 함수입니다.
-	nodeAVL* rl(nodeAVL*);
-	// 트리의 균형을 맞추는 함수입니다.
-	nodeAVL* balance(nodeAVL*);
-	// AVL 트리에 새로운 원소를 삽입합니다.
-	nodeAVL* insert(nodeAVL*, int);
-	// 현재의 AVL 트리 내용을 보여주는 함수입니다.
-	int search_AVL(nodeAVL*, int);
-	// AVL 트리의 키값을 찾아주는 함수입니다.
-	classAVL()
-	{
-		root = NULL;
-	}
+	int key;
+	NodeAVL* left;
+	NodeAVL* right;
+	int height;
 };
-// AVL 트리의 높이를 출력합니다.
-int classAVL::height(nodeAVL* temp)
+
+// A utility function to get maximum
+// of two integers
+int max(int a, int b);
+
+// A utility function to get the
+// height of the tree
+int height(NodeAVL* N)
 {
-	int h = 0;
-	if (temp != NULL)
+	if (N == NULL)
+		return 0;
+	return N->height;
+}
+
+// A utility function to get maximum
+// of two integers
+int max(int a, int b)
+{
+	return (a > b) ? a : b;
+}
+
+/* Helper function that allocates a
+   new node with the given key and
+   NULL left and right pointers. */
+NodeAVL* newNode(int key)
+{
+	NodeAVL* node = new NodeAVL();
+	node->key = key;
+	node->left = NULL;
+	node->right = NULL;
+	node->height = 1; // new node is initially
+					  // added at leaf
+	return(node);
+}
+
+// A utility function to right
+// rotate subtree rooted with y
+// See the diagram given above.
+NodeAVL* rightRotate(NodeAVL* y)
+{
+	NodeAVL* x = y->left;
+	NodeAVL* T2 = x->right;
+
+	// Perform rotation
+	x->right = y;
+	y->left = T2;
+
+	// Update heights
+	y->height = max(height(y->left),
+		height(y->right)) + 1;
+	x->height = max(height(x->left),
+		height(x->right)) + 1;
+
+	// Return new root
+	return x;
+}
+
+// A utility function to left
+// rotate subtree rooted with x
+// See the diagram given above.
+NodeAVL* leftRotate(NodeAVL* x)
+{
+	NodeAVL* y = x->right;
+	NodeAVL* T2 = y->left;
+
+	// Perform rotation
+	y->left = x;
+	x->right = T2;
+
+	// Update heights
+	x->height = max(height(x->left),
+		height(x->right)) + 1;
+	y->height = max(height(y->left),
+		height(y->right)) + 1;
+
+	// Return new root
+	return y;
+}
+
+// Get Balance factor of node N
+int getBalance(NodeAVL* N)
+{
+	if (N == NULL)
+		return 0;
+	return height(N->left) - height(N->right);
+}
+
+// Recursive function to insert a key
+// in the subtree rooted with node and
+// returns the new root of the subtree.
+NodeAVL* insert(NodeAVL* node, int key)
+{
+	/* 1. Perform the normal BST insertion */
+	if (node == NULL)
+		return(newNode(key));
+
+	if (key < node->key)
+		node->left = insert(node->left, key);
+	else if (key > node->key)
+		node->right = insert(node->right, key);
+	else // Equal keys are not allowed in BST
+		return node;
+
+	/* 2. Update height of this ancestor node */
+	node->height = 1 + max(height(node->left),
+		height(node->right));
+
+	/* 3. Get the balance factor of this ancestor
+		node to check whether this node became
+		unbalanced */
+	int balance = getBalance(node);
+
+	// If this node becomes unbalanced, then
+	// there are 4 cases
+
+	// Left Left Case
+	if (balance > 1 && key < node->left->key)
+		return rightRotate(node);
+
+	// Right Right Case
+	if (balance < -1 && key > node->right->key)
+		return leftRotate(node);
+
+	// Left Right Case
+	if (balance > 1 && key > node->left->key)
 	{
-		// 재귀적으로 왼쪽 혹은 오른쪽으로 검색합니다.
-		int left = height(temp->left);
-		int right = height(temp->right);
-		int maxHeight = max(left, right);
-		h = maxHeight + 1;
+		node->left = leftRotate(node->left);
+		return rightRotate(node);
 	}
-	return h;
-}
 
-// 균형인수(높이의 차이)를 반환합니다.
-int classAVL::diff(nodeAVL* temp)
-{
-	// 왼쪽 자식의 높이와 오른쪽 자식의 높이 차이를 반환합니다.
-	int left = height(temp->left);
-	int right = height(temp->right);
-	int factor = left - right;
-	return factor;
-}
-
-// RR 회전 함수입니다.
-nodeAVL* classAVL::rr(nodeAVL* parent)
-{
-	// 말이 회전이지 그냥 부모 노드의 오른쪽 자식노드와 데이터를 교환하는 것입니다.
-	nodeAVL* temp;
-	temp = parent->right;
-	parent->right = temp->left;
-	temp->left = parent;
-	return temp;
-}
-
-// ll 회전 함수입니다.
-nodeAVL* classAVL::ll(nodeAVL* parent)
-{
-	// RR 회전과 반대입니다.
-	nodeAVL* temp;
-	temp = parent->left;
-	parent->left = temp->right;
-	temp->right = parent;
-	return temp;
-}
-
-// LR 회전 함수입니다.
-nodeAVL* classAVL::lr(nodeAVL* parent)
-{
-	// LR 회전은 왼쪽 자식을 기준으로 RR, 본인을 기준으로 LL회전합니다.
-	nodeAVL* temp;
-	temp = parent->left;
-	parent->left = rr(temp);
-	return ll(parent);
-}
-
-// RL 회전 함수입니다.
-nodeAVL* classAVL::rl(nodeAVL* parent)
-{
-	// LR 회전과 반대입니다.
-	nodeAVL* temp;
-	temp = parent->right;
-	parent->right = ll(temp);
-	return rr(parent);
-}
-
-// AVL 트리의 균형을 맞추는 함수입니다.
-nodeAVL* classAVL::balance(nodeAVL* temp)
-{
-	int factor = diff(temp);
-	// 왼쪽 서브트리쪽으로 삽입이 되어 균형이 깨진 경우입니다.
-	if (factor > 1)
+	// Right Left Case
+	if (balance < -1 && key < node->right->key)
 	{
-		// 그 왼쪽 자식노드에 문제가 발생했습니다.
-		if (diff(temp->left) > 0)
-		{
-			temp = ll(temp);
-		}
-		// 그 오른쪽 자식 노드에 문제가 발생했습니다.
-		else
-		{
-			temp = lr(temp);
-		}
+		node->right = rightRotate(node->right);
+		return leftRotate(node);
 	}
-	else if (factor < -1)
-	{
-		if (diff(temp->right) > 0)
-		{
-			temp = rl(temp);
-		}
-		else
-		{
-			temp = rr(temp);
-		}
-	}
-	return temp;
-}
 
-// 트리에 원소를 삽입하는 함수입니다.
-nodeAVL* classAVL::insert(nodeAVL* root, int value)
-{
-	// 현재 트리가 비었을 때
-	if (root == NULL)
-	{
-		root = new nodeAVL;
-		root->data = value;
-		root->left = NULL;
-		root->right = NULL;
-		return root;
-	}
-	else if (value < root->data)
-	{
-		root->left = insert(root->left, value);
-		root = balance(root);
-	}
-	// 크거나 같은 경우 오른쪽 서브트리에 삽입합니다.
-	else if (value >= root->data)
-	{
-		root->right = insert(root->right, value);
-		root = balance(root);
-	}
-	return root;
+	/* return the (unchanged) node pointer */
+	return node;
 }
-
-// 트리의 원소를 찾아주는 함수입니다.
-int classAVL::search_AVL(nodeAVL* root, int value)
+int search_AVL(NodeAVL* root, int value)
 {
-	//지나가는 경로를 큐에 저장하고 순차적으로 출력
-	nodeAVL* ptr = root;
-	bool find = false;
+	NodeAVL* tmp = root;
+	NodeAVL* parent = NULL;
 	int cnt = 0;
-	if (value == root->data) //root의 데이터를 찾을 경우
+	/*key값을 찾거나 없다면 break*/
+	while (tmp != NULL && tmp->key != value)
 	{
-		return cnt;
+		parent = tmp;
+		tmp = (value < parent->key) ? parent->left : parent->right;
+		cnt++;
 	}
-	while (ptr && value != root->data) //root가 아닌 노드의 데이터를 찾는 경우
-	{
-		if (value < ptr->data) {
-			ptr = ptr->left;
-			cnt++;
-		}
-		else if (value > ptr->data) {
-			ptr = ptr->right;
-			cnt++;
-		}
-		else if (value == ptr->data) {
-			find = true;
-			return cnt;
-		}
-	}
-	cout << "찾으시는 데이터가 없습니다" << endl;
+	return cnt;
 }
-
+void postdelete(NodeAVL* root) {
+	if (root) {
+		postdelete(root->left);
+		postdelete(root->right);
+		delete root;
+	}
+}
 enum Color
 {
 	RED,
@@ -463,6 +459,20 @@ public:
 
 		return;
 	}
+	void postdeleteRB() {
+		if (root) {
+			postdeleteRB(root->left);
+			postdeleteRB(root->right);
+			delete root;
+		}
+	}
+	void postdeleteRB(NodePtr ptr){
+		if (ptr) {
+			postdeleteRB(ptr->left);
+			postdeleteRB(ptr->right);
+			delete ptr;
+		}
+	}
 };
 // 노드 정보
 typedef struct Node_ST {
@@ -501,6 +511,20 @@ public:
 	bool isRoot(Node_ST* tmp);
 	bool isExternal(Node_ST* tmp);
 
+	void postdeleteST(Node_ST* ptr) {
+		if (ptr) {
+			postdeleteST(ptr->leftc);
+			postdeleteST(ptr->rightc);
+			delete ptr;
+		}
+	}
+	void postdeleteST() {
+		if (root) {
+			postdeleteST(root->leftc);
+			postdeleteST(root->rightc);
+			delete root;
+		}
+	}
 	// get
 	Node_ST* getRoot();
 };
@@ -572,8 +596,13 @@ Node_ST* Splay::treeSearch(Node_ST* now, int element) {
 // 내부 노드로 확장
 void Splay::expand(Node_ST* external, int element) {
 	external->data = element;
-	external->leftc = new Node_ST;
-	external->rightc = new Node_ST;
+	try {
+		external->leftc = new Node_ST;
+		external->rightc = new Node_ST;
+	}
+	catch (bad_alloc e) {
+
+	}
 
 	external->leftc->parent = external;
 	external->rightc->parent = external;
@@ -765,95 +794,52 @@ int searchNod(TreapNod* root, int key) {
 	}
 	return cnt;
 }
-
-int BST_Search(int count) {
-	BinarySearchTree<int>* BST = new BinarySearchTree<int>();
-	for (int i = 0; i < count; i++) BST->AddNode(a[i]);
-	int cnt = 0;
-	for (int i = 0; i < 100; i++) {
-		if(count==1000) cnt += BST->SearchValue(ins_1000[i]);
-		else if(count ==5000) cnt += BST->SearchValue(ins_5000[i]);
-		else if (count == 10000) cnt += BST->SearchValue(ins_10000[i]);
-		else if (count == 50000) cnt += BST->SearchValue(ins_50000[i]);
-		else if (count == 100000) cnt += BST->SearchValue(ins_100000[i]);
+void postdeleteTR(TreapNod* root) {
+	if (root) {
+		postdeleteTR(root->l);
+		postdeleteTR(root->r);
+		delete root;
 	}
-	delete BST;
-	return cnt / 100;
-}
-int AVL_Search(int count) {
-	classAVL AVL;
-	for (int i = 0; i < count; i++) {
-		//cout << i << " "; 
-		root = AVL.insert(root, a[i]);
-	}
-	int cnt = 0;
-	for (int i = 0; i < 100; i++) {
-		if (count == 1000) cnt += AVL.search_AVL(root, ins_1000[i]);
-		else if (count == 5000) cnt += AVL.search_AVL(root, ins_5000[i]);
-		else if (count == 10000) cnt += AVL.search_AVL(root, ins_10000[i]);
-		else if (count == 50000) cnt += AVL.search_AVL(root, ins_50000[i]);
-		else if (count == 100000) cnt += AVL.search_AVL(root, ins_100000[i]);
-	}
-	return cnt / 100;
-}
-int RBT_Search(int count) {
-	RBTREE RBtree;
-	for (int i = 0; i < count; i++) {
-		//cout << i << " ";
-		RBtree.Insert(a[i]);
-	}
-	int cnt = 0;
-	for (int i = 0; i < 100; i++) {
-		if (count == 1000) cnt += RBtree.IsKey(ins_1000[i]);
-		else if (count == 5000) cnt += RBtree.IsKey(ins_5000[i]);
-		else if (count == 10000) cnt += RBtree.IsKey(ins_10000[i]);
-		else if (count == 50000) cnt += RBtree.IsKey(ins_50000[i]);
-		else if (count == 100000) cnt += RBtree.IsKey(ins_100000[i]);
-	}
-	return cnt / 100;
-}
-int ST_Search(int count) {
-	Splay splayT(a[0]);
-	for (int i = 1; i < count; i++) {
-		//cout << i << " ";
-		splayT.insertItem(a[i]);
-	}
-	int cnt = 0;
-	for (int i = 0; i < 100; i++) {
-		if (count == 1000) cnt += splayT.findElement(ins_1000[i]);
-		else if (count == 5000) cnt += splayT.findElement(ins_5000[i]);
-		else if (count == 10000) cnt += splayT.findElement(ins_10000[i]);
-		else if (count == 50000) cnt += splayT.findElement(ins_50000[i]);
-		else if (count == 100000) cnt += splayT.findElement(ins_100000[i]);
-	}
-	return cnt / 100;
-}
-int Treaps_Search(int count) {
-	TreapNod* root = nullptr;
-	for (int i = 1; i < count; i++) {
-		//cout << i << " ";
-		insertNod(root, a[i]);
-	}
-	int cnt = 0;
-	for (int i = 0; i < 100; i++) {
-		if (count == 1000) cnt += searchNod(root, ins_1000[i]);
-		else if (count == 5000) cnt += searchNod(root, ins_5000[i]);
-		else if (count == 10000) cnt += searchNod(root, ins_10000[i]);
-		else if (count == 50000) cnt += searchNod(root, ins_50000[i]);
-		else if (count == 100000) cnt += searchNod(root, ins_100000[i]);
-	}
-	return cnt / 100;
 }
 void search_compare(int data_size) {
-	cout << "<데이터 "<<data_size<<"개>" << endl;
-	cout << "B.S.T의 평균 탐색 횟수 : " << BST_Search(data_size) << endl;
-	cout << "AVL Tree의 평균 탐색 횟수 : " << AVL_Search(data_size) << endl;
-	cout << "Red-Black Tree의 평균 탐색 횟수 : " << RBT_Search(data_size) << endl;
-	cout << "Splay Tree의 평균 탐색 횟수 : " << ST_Search(data_size) << endl;
-	cout << "Treaps의 평균 탐색 횟수 : " << Treaps_Search(data_size) << endl << endl;
+	cout << "<데이터 " << data_size << "개>" << endl;
+	double cnt1 = 0, cnt2 = 0, cnt3 = 0, cnt4 = 0, cnt5 = 0;
+	for (int p = 0; p < 100; p++) {
+		random_generate_alldata(data_size);
+		random_generate_index(data_size);
+		
+		BinarySearchTree<int>* BST = new BinarySearchTree<int>();
+		for (int i = 0; i < data_size; i++) BST->AddNode(a[i]);
+		cnt1 += BST->SearchValue(a[b[p]]);
+		BST->rem();
+		delete BST;
+
+		NodeAVL* root1 = NULL;
+		for (int i = 0; i < data_size; i++) root1 = insert(root1, a[i]);
+		cnt2 += search_AVL(root1, a[b[p]]);
+		postdelete(root1);
+	
+		RBTREE RBtree;
+		for (int i = 0; i < data_size; i++) RBtree.Insert(a[i]);
+		cnt3 += RBtree.IsKey(a[b[p]]);
+
+		Splay splayT(a[0]);
+		for (int i = 1; i < data_size; i++) splayT.insertItem(a[i]);
+		cnt4 += splayT.findElement(a[b[p]]);
+		splayT.postdeleteST();
+
+		TreapNod* root2 = nullptr;
+		for (int i = 1; i < data_size; i++) insertNod(root2, a[i]);
+		cnt5 += searchNod(root2, a[b[p]]);
+		postdeleteTR(root2);
+	}
+	cout << "B.S.T의 평균 탐색 횟수 : " << cnt1 / 100 << endl;
+	cout << "AVL Tree의 평균 탐색 횟수 : " << cnt2 / 100 << endl;
+	cout << "Red-Black Tree의 평균 탐색 횟수 : " << cnt3 / 100 << endl;
+	cout << "Splay Tree의 평균 탐색 횟수 : " << cnt4 / 100 << endl;
+	cout << "Treaps의 평균 탐색 횟수 : " << cnt5 / 100 << endl << endl;
 }
 int main() {
-    random_generate();
 	search_compare(1000);
 	search_compare(5000);
 	search_compare(10000);
